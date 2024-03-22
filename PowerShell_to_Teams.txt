@@ -1,0 +1,14 @@
+$wifiProfiles = netsh wlan show profiles | Select-String -Pattern "All User Profile" | ForEach-Object {
+    $_ -replace "^.*:\s*", ""
+}
+
+# 2. Extrair a senha para cada perfil
+foreach ($profile in $wifiProfiles) {
+    $password = netsh wlan show profile name="$profile" key=clear | Select-String -Pattern "Key Content" | ForEach-Object {
+        $_ -replace "^.*:\s*", ""
+    }
+    [PSCustomObject]@{
+        Profile = $profile
+        Password = $password
+    }
+}
